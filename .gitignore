@@ -1,0 +1,10 @@
+# OS ki faltu files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor settings
+.vscode/
+
+# Logs
+*.log

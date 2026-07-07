@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Counter Pro — Bugatti Edition</title>
+
+  <!-- ===== CSS: Bugatti-inspired design ===== -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #e8eef7;
+      /* Dark carbon + Bugatti blue background */
+      background: radial-gradient(circle at 30% 20%, #0d2a4d 0%, #060a12 60%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    /* Background me sleek car silhouette */
+    .car-bg {
+      position: fixed;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 900px; max-width: 130vw;
+      opacity: 0.10;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 720px;
+      background: rgba(10, 22, 40, 0.82);
+      border: 1px solid rgba(58, 160, 224, 0.30);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.45);
+      padding: 28px;
+      backdrop-filter: blur(6px);
+    }
+    .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    h1 { font-size: 24px; letter-spacing: 0.5px; }
+    .brand { color: #3aa0e0; }
+    .subtitle { color: #8fa3bd; font-size: 13px; margin-bottom: 18px; }
+
+    textarea {
+      width: 100%; height: 160px; padding: 14px; font-size: 15px;
+      color: #e8eef7; background: rgba(5, 12, 22, 0.7);
+      border: 1.5px solid rgba(58,160,224,0.35); border-radius: 12px; resize: vertical; outline: none;
+    }
+    textarea:focus { border-color: #3aa0e0; }
+
+    /* Buttons toolbar */
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .btn {
+      background: rgba(58,160,224,0.14); color: #9fd0f2;
+      border: 1px solid rgba(58,160,224,0.35);
+      padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:hover { background: rgba(58,160,224,0.28); color: #fff; }
+    .btn.primary { background: #1a5fb4; border-color: #1a5fb4; color: #fff; }
+    .btn.primary:hover { background: #2472d4; }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px; margin-top: 18px; }
+    .stat { background: rgba(58,160,224,0.10); border: 1px solid rgba(58,160,224,0.18); border-radius: 10px; padding: 12px; text-align: center; }
+    .stat .num { font-size: 22px; font-weight: bold; color: #3aa0e0; }
+    .stat .label { font-size: 11px; color: #8fa3bd; margin-top: 3px; }
+
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+    @media (max-width: 560px) { .cols { grid-template-columns: 1fr; } }
+    .panel { border: 1px solid rgba(58,160,224,0.22); border-radius: 12px; padding: 16px; background: rgba(5,12,22,0.4); }
+    .panel h3 { font-size: 15px; margin-bottom: 4px; }
+    .panel .note { font-size: 11px; color: #8fa3bd; margin-bottom: 12px; }
+    .row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 6px 0; border-bottom: 1px dashed rgba(58,160,224,0.18); }
+    .row:last-child { border-bottom: none; }
+    .bar-wrap { flex: 1; height: 6px; background: rgba(58,160,224,0.15); border-radius: 4px; margin: 0 10px; overflow: hidden; }
+    .bar { height: 100%; background: #3aa0e0; border-radius: 4px; }
+    .empty { color: #8fa3bd; font-size: 12px; padding: 8px 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Background car silhouette (SVG) -->
+  <svg class="car-bg" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path fill="#3aa0e0" d="M28,162 C40,140 62,134 92,132 L150,129 C172,108 205,93 255,90 L362,89 C414,89 452,105 483,133 L562,141 C577,144 580,151 576,161 L520,161 A38,38 0 0 0 444,161 L216,161 A38,38 0 0 0 140,161 Z"/>
+    <circle cx="178" cy="162" r="30" fill="#060a12"/>
+    <circle cx="482" cy="162" r="30" fill="#060a12"/>
+    <circle cx="178" cy="162" r="18" fill="#3aa0e0"/>
+    <circle cx="482" cy="162" r="18" fill="#3aa0e0"/>
+  </svg>
+
+  <!-- ===== HTML: dhancha ===== -->
+  <div class="card">
+    <div class="head">
+      <h1>🏎️ Word Counter <span class="brand">Pro</span></h1>
+    </div>
+    <p class="subtitle">Bugatti Edition — text likhein, sab kuch foran ginti ho jayega.</p>
+
+    <textarea id="textInput" placeholder="Yahan apna text likhein ya paste karein..."></textarea>
+
+    <!-- Buttons toolbar -->
+    <div class="toolbar">
+      <button class="btn" onclick="toUpper()">UPPERCASE</button>
+      <button class="btn" onclick="toLower()">lowercase</button>
+      <button class="btn" onclick="toTitle()">Title Case</button>
+      <button class="btn primary" onclick="copyResults()" id="copyBtn">📋 Copy results</button>
+      <button class="btn" onclick="clearText()">Clear</button>
+    </div>
+
+    <!-- Stat boxes -->
+    <div class="stats">
+      <div class="stat"><div class="num" id="words">0</div><div class="label">Words</div></div>
+      <div class="stat"><div class="num" id="chars">0</div><div class="label">Characters</div></div>
+      <div class="stat"><div class="num" id="charsNoSpace">0</div><div class="label">No spaces</div></div>
+      <div class="stat"><div class="num" id="sentences">0</div><div class="label">Sentences</div></div>
+      <div class="stat"><div class="num" id="paragraphs">0</div><div class="label">Paragraphs</div></div>
+      <div class="stat"><div class="num" id="numbers">0</div><div class="label">Numbers</div></div>
+      <div class="stat"><div class="num" id="readTime">0</div><div class="label">Read (min)</div></div>
+    </div>
+
+    <div class="cols">
+      <div class="panel">
+        <h3>🔑 Keyword Density</h3>
+        <p class="note">Sab se zyada aane wale words (SEO ke liye)</p>
+        <div id="keywords"><div class="empty">Text likhein...</div></div>
+      </div>
+      <div class="panel">
+        <h3>🔁 Repetition Checker</h3>
+        <p class="note">Dohraaye gaye phrases (aap ke apne text me)</p>
+        <div id="repeats"><div class="empty">Text likhein...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== JavaScript: aql ===== -->
+  <script>
+    const textInput = document.getElementById('textInput');
+    const stopWords = new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','is','are','was','were','be','been','this','that','these','those','it','its','as','by','from','we','you','i','he','she','they','will','can','has','have','had','not','so','if','then','than','my','your','our']);
+
+    function updateCounts() {
+      const text = textInput.value;
+      const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+      document.getElementById('words').textContent = words;
+      document.getElementById('chars').textContent = text.length;
+      document.getElementById('charsNoSpace').textContent = text.replace(/\s/g, '').length;
+      document.getElementById('sentences').textContent = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+      document.getElementById('paragraphs').textContent = text.split(/\n+/).filter(p => p.trim().length > 0).length;
+      // Numbers ginna: digits ke groups (jaise "123" = 1 number)
+      document.getElementById('numbers').textContent = (text.match(/\d+/g) || []).length;
+      document.getElementById('readTime').textContent = Math.ceil(words / 200);
+      updateKeywords(text, words);
+      updateRepeats(text);
+    }
+
+    function updateKeywords(text, totalWords) {
+      const box = document.getElementById('keywords');
+      const wordList = (text.toLowerCase().match(/[a-z0-9']+/g) || []).filter(w => w.length > 2 && !stopWords.has(w));
+      if (wordList.length === 0) { box.innerHTML = '<div class="empty">Text likhein...</div>'; return; }
+      const freq = {};
+      wordList.forEach(w => freq[w] = (freq[w] || 0) + 1);
+      const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      const maxCount = top[0][1];
+      box.innerHTML = top.map(([word, count]) => {
+        const pct = ((count / totalWords) * 100).toFixed(1);
+        const barW = (count / maxCount) * 100;
+        return `<div class="row"><span>${word}</span><div class="bar-wrap"><div class="bar" style="width:${barW}%"></div></div><span>${count}× (${pct}%)</span></div>`;
+      }).join('');
+    }
+
+    function updateRepeats(text) {
+      const box = document.getElementById('repeats');
+      const words = text.toLowerCase().match(/[a-z0-9']+/g) || [];
+      if (words.length < 3) { box.innerHTML = '<div class="empty">Text likhein...</div>'; return; }
+      const phrases = {};
+      for (let i = 0; i < words.length - 2; i++) {
+        const phrase = words[i] + ' ' + words[i+1] + ' ' + words[i+2];
+        phrases[phrase] = (phrases[phrase] || 0) + 1;
+      }
+      const repeated = Object.entries(phrases).filter(([p, c]) => c > 1).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      if (repeated.length === 0) { box.innerHTML = '<div class="empty">✅ Koi phrase dohraaya nahi gaya</div>'; return; }
+      box.innerHTML = repeated.map(([phrase, count]) => `<div class="row"><span>"${phrase}"</span><span>${count}×</span></div>`).join('');
+    }
+
+    // Case converter functions
+    function toUpper() { textInput.value = textInput.value.toUpperCase(); updateCounts(); }
+    function toLower() { textInput.value = textInput.value.toLowerCase(); updateCounts(); }
+    function toTitle() {
+      textInput.value = textInput.value.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+      updateCounts();
+    }
+
+    function clearText() { textInput.value = ''; updateCounts(); }
+
+    // Copy results — saare stats clipboard me daal do
+    function copyResults() {
+      const g = id => document.getElementById(id).textContent;
+      const result =
+`Word Counter Results
+---------------------
+Words: ${g('words')}
+Characters: ${g('chars')}
+Characters (no spaces): ${g('charsNoSpace')}
+Sentences: ${g('sentences')}
+Paragraphs: ${g('paragraphs')}
+Numbers: ${g('numbers')}
+Reading time: ${g('readTime')} min`;
+      navigator.clipboard.writeText(result).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy results'; }, 1500);
+      });
+    }
+
+    textInput.addEventListener('input', updateCounts);
+  </script>
+
+</body>
+</html>
